@@ -26,8 +26,43 @@
  */
 
 
+
+ var Utils = function(){}
+ 
+ 
+ /* A utility function to copy 2D transform matrix */
+Utils.copy2DMatrix	  = function (m1, m2){
+	 	
+	 	
+	 	m1.a = m2.a;
+	 	m1.b = m2.b;
+	 	m1.c = m2.c;
+	 	m1.d = m2.d;
+	 	m1.dx = m2.dx;
+	 	m1.dy = m2.dy;
+	 	
+}
+
+ /* A utility function to 2D transform matrices */
+Utils.multiply2DMatrices = function (m1, m2){
+	 	
+	 	
+	 	var r = {};
+	 	
+	 	r.a   = 	m1.a * m2.a + m1.c * m2.b;
+	 	r.b 	= 	m1.b * m2.a + m1.d * m2.b;
+	 	r.c		= 	m1.a * m2.c + m1.c * m2.d;
+	 	r.d		= 	m1.b * m2.c + m1.d * m2.d;
+	 	r.dx	= 	m1.a * m2.dx + m1.c * m2.dy + m1.dx;
+	 	r.dy	= 	m1.b * m2.dx + m1.d * m2.dy + m1.dy;
+	 	
+	 	return r;
+	 	
+}
+
+
  /**
- * Class definition 
+ * ExSprite Class definition 
  */
  var ExSprite = function (){
  	
@@ -51,8 +86,14 @@
  	 /* x co-ordinate */
  	 var _x 	= 0;
  	 
+ 	 /* change in x co-ordinate */
+ 	 var _dx 	= 0;
+ 	 
  	 /* y co-ordinate */
  	 var _y 	= 0;
+ 	 
+ 	 /* change in y co-ordinate */
+ 	 var _dy 	= 0;
  	 
  	 /* width of the sprite */
  	 var _width 	= 0;
@@ -61,16 +102,25 @@
  	 var _height 	= 0;
  	 
  	 /* Unit in which angle is expressed */
- 	 var _angleUnit	=   "degree"; 
+ 	 var _angleUnit	=   "radian"; 
  	 
  	 /* height of the sprite */
  	 var _rotation = 0;
  	 
+	 /* change in rotation */
+ 	 var _dRotation 	= 0;
+ 	 
  	 /* horizontal scaling of the sprite */
  	 var _scaleX = 1;
+ 	 
+ 	 /* change in scaleX */
+ 	 var _dScaleX 	= 1;
  	  	 
  	 /* vertical scaling of the sprite */
  	 var _scaleY = 1;
+ 	 
+ 	 /* change in scaleY */
+ 	 var _dScaleY 	= 1;
  	 
  	 
  	 /* transformation */
@@ -141,6 +191,7 @@
  	 */
     this.x  = function (value){
     	if(value){
+    		_dx = value - _x;
     		_x = value;
     	}else{
     		return _x;
@@ -155,6 +206,7 @@
  	 */
     this.y  = function (value){
     	if(value){
+    		_dy = value - _y;
     		_y = value;
     	}else{
     		return _y;
@@ -189,6 +241,58 @@
     } 
     
     
+    this.angleUnit  = function (value){
+    	if(value){
+    		_angleUnit = value;
+    	}else{
+    		return _angleUnit;
+    	}
+    } 
+    
+ /**
+ 	 * Function height
+ 	 * Setter and Getter of _height
+ 	 * 
+ 	 */
+    this.rotation  = function (value){
+    	if(value){
+    		_dRotation = value - _rotation;
+    		_rotation = value;
+    	}else{
+    		return _rotation;
+    	}
+    } 
+    
+    
+    /**
+ 	 * Function scaleX
+ 	 * Setter and Getter of _scaleX
+ 	 * 
+ 	 */
+    this.scaleX  = function (value){
+    	if(value){
+    		_dScaleX = value/_scaleX;
+    		_scaleX = value;
+    	}else{
+    		return _scaleX;
+    	}
+    } 
+    
+    
+    /**
+ 	 * Function scaleY
+ 	 * Setter and Getter of _scaleY
+ 	 * 
+ 	 */
+    this.scaleY  = function (value){
+    	if(value){
+    		_dScaleY = value/_scaleY;
+    		_scaleY = value;
+    	}else{
+    		return _scaleY;
+    	}
+    } 
+    
     
 	/**
  	 * Function height
@@ -204,46 +308,7 @@
     }
     
     
-    /**
- 	 * Function height
- 	 * Setter and Getter of _height
- 	 * 
- 	 */
-    this.rotation  = function (value){
-    	if(value){
-    		_rotation = value;
-    	}else{
-    		return _rotation;
-    	}
-    } 
-    
-    
-    /**
- 	 * Function scaleX
- 	 * Setter and Getter of _scaleX
- 	 * 
- 	 */
-    this.scaleX  = function (value){
-    	if(value){
-    		_scaleX = value;
-    	}else{
-    		return _rotation;
-    	}
-    } 
-    
-    
-    /**
- 	 * Function scaleY
- 	 * Setter and Getter of _scaleY
- 	 * 
- 	 */
-    this.scaleY  = function (value){
-    	if(value){
-    		_scaleY = value;
-    	}else{
-    		return _rotation;
-    	}
-    } 
+   
     
     
     
@@ -315,48 +380,45 @@
   
   	this.applyTransform  = function(graphics2D){
   		
-  		_transform.matrix2D.dx = _x;
-  		_transform.matrix2D.dy = _y;
+  		//_transform.matrix2D.dx = _x;
+  		//_transform.matrix2D.dy = _y;
   		
+  		var tMatrix =  {a:1, b:0, c:0, d:1, dx:_dx, dy:_dy};
+  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, tMatrix);
+  		_dx = _dy = 0;
   		
-  		var rot = _rotation;
-  		if(_angleIn = "degree"){
-  			rot	 = rot * (Math.PI/180);
+  		var dRot = _dRotation;
+  		if(_angleUnit == "degree"){
+  			dRot	 = dRot * (Math.PI/180);
   		}
+  		var rMatrix =  {a:Math.cos(dRot), b:Math.sin(dRot), c:-Math.sin(dRot), d:Math.cos(dRot), dx:0, dy:0};
+  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, rMatrix);
+  		_dRotation = 0
   		
+  		var sMatrix =  {a:_dScaleX, b:0, c:0, d:_dScaleY, dx:0, dy:0};
+  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, sMatrix);
+  		_dScaleX = _dScaleY = 1;
   		
-  		_transform.matrix2D.a = Math.cos(rot);
-  		_transform.matrix2D.b = Math.sin(rot);
-  		_transform.matrix2D.c = -Math.sin(rot);
-  		_transform.matrix2D.d = Math.cos(rot);
-  		
-  		
+ 
   		if(_parentSprite){
 			
 			
 			var parentTransform = _parentSprite.transform();
 			
-			_transform.augMatrix2D = multiply2DMatrices(parentTransform.augMatrix2D, _transform.matrix2D);
+			_transform.augMatrix2D = Utils.multiply2DMatrices(parentTransform.augMatrix2D, _transform.matrix2D);
 			  			
   		
   		}else{
   			
-  			_transform.augMatrix2D.a = _transform.matrix2D.a;
-  			_transform.augMatrix2D.b = _transform.matrix2D.b;
-  			_transform.augMatrix2D.c = _transform.matrix2D.c;
-  			_transform.augMatrix2D.d = _transform.matrix2D.d;
-  			_transform.augMatrix2D.dx = _transform.matrix2D.dx;
-  			_transform.augMatrix2D.dy = _transform.matrix2D.dy;
-  		
+  			Utils.copy2DMatrix(_transform.augMatrix2D, _transform.matrix2D);
+  			
   		}
   		
-  		graphics2D.setTransform(	_transform.augMatrix2D.a,
-	 											_transform.augMatrix2D.b,
-	 											_transform.augMatrix2D.c, 
-	 											_transform.augMatrix2D.d, 
-	 											_transform.augMatrix2D.dx, 
-	 											_transform.augMatrix2D.dy
-	 									);
+  		var m2D = _transform.augMatrix2D;
+  		
+  		graphics2D.setTransform( m2D.a, m2D.b, m2D.c, m2D.d, m2D.dx, m2D.dy );
+  		
+  		
 	}
   
   
@@ -407,22 +469,7 @@
 	 
 
 	 
-	 /* A utility function to 2D transform matrices */
-	 function multiply2DMatrices(m1, m2){
-	 	
-	 	
-	 	var r = {};
-	 	
-	 	r.a   = 	m1.a * m2.a + m1.c * m2.b;
-	 	r.b 	= 	m1.b * m2.a + m1.d * m2.b;
-	 	r.c		= 	m1.a * m2.c + m1.c * m2.d;
-	 	r.d		= 	m1.b * m2.c + m1.d * m2.d;
-	 	r.dx	= 	m1.a * m2.dx + m1.c * m2.dy + m1.dx;
-	 	r.dy	= 	m1.b * m2.dx + m1.d * m2.dy + m1.dy;
-	 	
-	 	return r;
-	 	
-	 }
+	 
  
 }
 
@@ -534,11 +581,7 @@ Ex.render = function (){
 	var now = new Date().getTime();  
 	var diff = now - Ex.start;
 	Ex.fps		=  ((Ex.frame/diff) * 1000).toFixed(2);
-	
-	
-	//console.log(" frame >> ", Ex.frame);
-	
-	
+
 	Ex.graphics2D.setTransform(1, 0, 0, 1, 0, 0);
 	Ex.graphics2D.clearRect(0, 0, Ex.canvas.width, Ex.canvas.height);
 	Ex.baseSprite.updateDisplay(Ex.graphics2D, Ex.frame, Ex.fps);
