@@ -3,7 +3,7 @@
  * http://www.exsprite.com/
  * Copyright 2011, Vipin V
  * Licensed under the MIT or GPL Version 2 licenses.
- * Date: Jun 12 2011
+ * Date: Jun 14 2011
  *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -36,10 +36,13 @@ Utils.copy2DMatrix	  = function (m1, m2){
 	 	
 	 	m1.a = m2.a;
 	 	m1.b = m2.b;
+	 	m1.u = m2.u;
 	 	m1.c = m2.c;
 	 	m1.d = m2.d;
+	 	m1.v = m2.v;
 	 	m1.dx = m2.dx;
 	 	m1.dy = m2.dy;
+	 	m1.w = m2.w;
 	 	
 }
 
@@ -49,12 +52,23 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 	
 	 	var r = {};
 	 	
-	 	r.a   = 	m1.a * m2.a + m1.c * m2.b;
-	 	r.b 	= 	m1.b * m2.a + m1.d * m2.b;
-	 	r.c		= 	m1.a * m2.c + m1.c * m2.d;
-	 	r.d		= 	m1.b * m2.c + m1.d * m2.d;
-	 	r.dx	= 	m1.a * m2.dx + m1.c * m2.dy + m1.dx;
-	 	r.dy	= 	m1.b * m2.dx + m1.d * m2.dy + m1.dy;
+	 	r.a   = 	m1.a * m2.a 	+ m1.c * m2.b + m1.dx * m2.u;
+	 	r.c		= 	m1.a * m2.c 	+ m1.c * m2.d + m1.dx * m2.v;
+	 	r.dx	= 	m1.a * m2.dx + m1.c * m2.dy + m1.dx * m2.w;
+	 	
+	 	r.b 	= 	m1.b * m2.a + m1.d * m2.b + m1.dy * m2.u;
+	 	r.d		= 	m1.b * m2.c + m1.d * m2.d + m1.dy * m2.v ;
+	 	r.dy	= 	m1.b * m2.dx + m1.d * m2.dy + m1.dy * m2.w;
+	 	
+	 	r.u 	= 	m1.u * m2.a + m1.v * m2.b + m1.w * m2.u;
+	 	r.v		= 	m1.u * m2.c + m1.v * m2.d + m1.w *  m2.v;
+	 	r.w		= 	m1.u * m2.dx + m1.v * m2.dy + m1.w *  m2.w;
+	 	
+	 
+	 	
+	 	
+	 	
+	 	
 	 	
 	 	return r;
 	 	
@@ -69,10 +83,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 
  	 /************************************************** PROPERTIES **********************************************/
 	
-	 /*var _actionsStack   = [];
-	 
-	 var _actionParams		= [];*/
-	 
 	 
 	 /* name of this */
 	 var _name = "";
@@ -86,14 +96,8 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 /* x co-ordinate */
  	 var _x 	= 0;
  	 
- 	 /* change in x co-ordinate */
- 	 var _dx 	= 0;
- 	 
  	 /* y co-ordinate */
  	 var _y 	= 0;
- 	 
- 	 /* change in y co-ordinate */
- 	 var _dy 	= 0;
  	 
  	 /* width of the sprite */
  	 var _width 	= 0;
@@ -107,20 +111,12 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 /* height of the sprite */
  	 var _rotation = 0;
  	 
-	 /* change in rotation */
- 	 var _dRotation 	= 0;
- 	 
- 	 /* horizontal scaling of the sprite */
+	 /* horizontal scaling of the sprite */
  	 var _scaleX = 1;
  	 
- 	 /* change in scaleX */
- 	 var _dScaleX 	= 1;
- 	  	 
  	 /* vertical scaling of the sprite */
  	 var _scaleY = 1;
  	 
- 	 /* change in scaleY */
- 	 var _dScaleY 	= 1;
  	 
  	 
  	 /* transformation */
@@ -191,7 +187,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 */
     this.x  = function (value){
     	if(value){
-    		_dx = value - _x;
     		_x = value;
     	}else{
     		return _x;
@@ -206,7 +201,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 */
     this.y  = function (value){
     	if(value){
-    		_dy = value - _y;
     		_y = value;
     	}else{
     		return _y;
@@ -256,7 +250,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 */
     this.rotation  = function (value){
     	if(value){
-    		_dRotation = value - _rotation;
     		_rotation = value;
     	}else{
     		return _rotation;
@@ -271,7 +264,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 */
     this.scaleX  = function (value){
     	if(value){
-    		_dScaleX = value/_scaleX;
     		_scaleX = value;
     	}else{
     		return _scaleX;
@@ -286,7 +278,6 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 */
     this.scaleY  = function (value){
     	if(value){
-    		_dScaleY = value/_scaleY;
     		_scaleY = value;
     	}else{
     		return _scaleY;
@@ -380,26 +371,20 @@ Utils.multiply2DMatrices = function (m1, m2){
   
   	this.applyTransform  = function(graphics2D){
   		
-  		//_transform.matrix2D.dx = _x;
-  		//_transform.matrix2D.dy = _y;
   		
-  		var tMatrix =  {a:1, b:0, c:0, d:1, dx:_dx, dy:_dy};
-  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, tMatrix);
-  		_dx = _dy = 0;
-  		
-  		var dRot = _dRotation;
+  		var rot = _rotation;
   		if(_angleUnit == "degree"){
-  			dRot	 = dRot * (Math.PI/180);
+  			rot	 = rot * (Math.PI/180);
   		}
-  		var rMatrix =  {a:Math.cos(dRot), b:Math.sin(dRot), c:-Math.sin(dRot), d:Math.cos(dRot), dx:0, dy:0};
-  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, rMatrix);
-  		_dRotation = 0
   		
-  		var sMatrix =  {a:_dScaleX, b:0, c:0, d:_dScaleY, dx:0, dy:0};
-  		_transform.matrix2D   =  Utils.multiply2DMatrices(_transform.matrix2D, sMatrix);
-  		_dScaleX = _dScaleY = 1;
   		
- 
+  		var sMatrix =  {a:_scaleX, b:0, u:0, c:0, d:_scaleY, v:0, dx:0, dy:0, w:1};
+  		var rMatrix =  {a:Math.cos(rot), b:Math.sin(rot), u:0, c:-Math.sin(rot), d:Math.cos(rot), v:0, dx:0, dy:0, w:1};
+  		var tMatrix =  {a:1, b:0, u:0, c:0, d:1, v:0, dx:_x, dy:_y, w:1};
+  		
+  		_transform.matrix2D  = Utils.multiply2DMatrices(Utils.multiply2DMatrices(tMatrix, rMatrix), sMatrix);
+  		
+  
   		if(_parentSprite){
 			
 			
@@ -537,7 +522,7 @@ Ex.init = function(container, width, height, fps){
   * Adds sprite to the base container
   *
 **/
-Ex.addSprite = function(exSprite){
+Ex.addToBase = function(exSprite){
 	
 	if(Ex.baseSprite){
 		Ex.baseSprite.pushChild(exSprite);
