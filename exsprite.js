@@ -3,7 +3,7 @@
  * http://www.exsprite.com/
  * Copyright 2011, Vipin V
  * Licensed under the MIT or GPL Version 2 licenses.
- * Date: Jun 14 2011
+ * Date: Jun 12 2011
  *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -74,6 +74,18 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 	
 }
 
+ var Event  = function(){
+ 	 	
+ }
+
+ var MouseEvent = function(){
+ 	
+ }
+ MouseEvent.prototype = new Event;
+ MouseEvent.MOUSE_CLICK = "mouseClick";
+ MouseEvent.MOUSE_MOVE = "mouseMove";
+ MouseEvent.MOUSE_OVER = "mouseOver";
+ MouseEvent.MOUSE_OUT = "mouseOut";
 
  /**
  * ExSprite Class definition 
@@ -145,7 +157,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.name = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_name = value;
     	}else{
     		return _name;
@@ -158,7 +170,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.frame = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_frame = value;
     	}else{
     		return _frame;
@@ -172,7 +184,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.fps = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_fps = value;
     	}else{
     		return _fps;
@@ -186,7 +198,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.x  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_x = value;
     	}else{
     		return _x;
@@ -200,7 +212,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.y  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_y = value;
     	}else{
     		return _y;
@@ -213,7 +225,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.width  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_width = value;
     	}else{
     		return _width;
@@ -227,7 +239,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.height  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_height = value;
     	}else{
     		return _height;
@@ -236,7 +248,7 @@ Utils.multiply2DMatrices = function (m1, m2){
     
     
     this.angleUnit  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_angleUnit = value;
     	}else{
     		return _angleUnit;
@@ -249,7 +261,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.rotation  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_rotation = value;
     	}else{
     		return _rotation;
@@ -263,7 +275,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.scaleX  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_scaleX = value;
     	}else{
     		return _scaleX;
@@ -277,7 +289,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.scaleY  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_scaleY = value;
     	}else{
     		return _scaleY;
@@ -291,7 +303,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.transform  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_transform = value;
     	}else{
     		return _transform;
@@ -309,7 +321,7 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 * 
  	 */
     this.parentSprite  = function (value){
-    	if(value){
+    	if(typeof(value) != 'undefined'){
     		_parentSprite = value;
     	}else{
     		return _parentSprite;
@@ -361,8 +373,7 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 	exSprite.parentSprite(this);
 	 }
 
-
-    
+  
     
    this.modifyTransform = function(){    
    
@@ -431,6 +442,16 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 		
 	 		var child = _children[i];
 	 		
+	 		if(child && child.drawInParent){
+	 			child.drawInParent(graphics2D);
+	 		}
+	 		
+	 	}
+	 	
+	 	for( var i = 0; i < this.numChildren(); i++){
+	 		
+	 		var child = _children[i];
+	 		
 	 		if(child && child.updateDisplay){
 	 			child.updateDisplay(graphics2D, frame, fps);
 	 		}
@@ -439,6 +460,16 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 	
 	 }
 	 
+	 /**
+	 	 * Function drawInParent
+	 	 * Draws the pixels according to parent transformation
+	 	 * 
+	 	 */ 
+	 this.drawInParent = function(graphics2D){
+		
+		
+		
+	}
 	 
 	 /**
 	 	 * Function draw
