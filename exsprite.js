@@ -32,55 +32,88 @@
  
  /* A utility function to copy 2D transform matrix */
 Utils.copy2DMatrix	  = function (m1, m2){
-	 	
-	 	
-	 	m1.a = m2.a;
-	 	m1.b = m2.b;
-	 	m1.u = m2.u;
-	 	m1.c = m2.c;
-	 	m1.d = m2.d;
-	 	m1.v = m2.v;
-	 	m1.dx = m2.dx;
-	 	m1.dy = m2.dy;
-	 	m1.w = m2.w;
-	 	
+	   for(var x in m2){
+	   	  m1[x] = m2[x];
+	   	}
 }
-
- /* A utility function to 2D transform matrices */
+/* A utility function to 2D transform matrices */
 Utils.multiply2DMatrices = function (m1, m2){
-	 	
-	 	
 	 	var r = {};
-	 	
 	 	r.a   = 	m1.a * m2.a 	+ m1.c * m2.b + m1.dx * m2.u;
 	 	r.c		= 	m1.a * m2.c 	+ m1.c * m2.d + m1.dx * m2.v;
 	 	r.dx	= 	m1.a * m2.dx + m1.c * m2.dy + m1.dx * m2.w;
-	 	
 	 	r.b 	= 	m1.b * m2.a + m1.d * m2.b + m1.dy * m2.u;
 	 	r.d		= 	m1.b * m2.c + m1.d * m2.d + m1.dy * m2.v ;
 	 	r.dy	= 	m1.b * m2.dx + m1.d * m2.dy + m1.dy * m2.w;
-	 	
 	 	r.u 	= 	m1.u * m2.a + m1.v * m2.b + m1.w * m2.u;
 	 	r.v		= 	m1.u * m2.c + m1.v * m2.d + m1.w *  m2.v;
 	 	r.w		= 	m1.u * m2.dx + m1.v * m2.dy + m1.w *  m2.w;
-	 	
-	 
-	 	
-	 	
-	 	
-	 	
-	 	
 	 	return r;
-	 	
 }
+
+Utils.getDeterminant2D = function(m){
+		 var d = 0;
+		 d +=   m.a * m.d * m.w;
+		 d +=   m.c * m.dy * m.u;
+		 d +=   m.dx * m.b * m.v;
+		 d -=   m.u * m.d * m.dx;
+		 d -= 	  m.v * m.dy * m.a;
+		 d -=   m.w * m.b * m.c;
+		 return d;
+}
+
+Utils.getTranspose2D = function(m){
+	var t = {};
+	t.a = m.a;
+	t.b = m.c;
+	t.u = m.dx;
+	t.c = m.b;
+	t.d = m.d;
+	t.v = m.dy;
+	t.dx = m.u;
+	t.dy = m.v;
+	t.w = m.w;
+	return t;
+}
+
+Utils.getAdjoint2D = function(m){
+	var c = {};
+	c.a 	= 	m.d * m.w - m.v * m.dy;
+   c.c 	= 	(-1) * ( m.b * m.w - m.u * m.dy );
+   c.dx 	= 	m.b * m.v - m.u * m.d;
+   c.b		=	(-1)*(m.c * m.w-m.v * m.dx);
+  	c.d		=	m.a*m.w-m.u * m.dx;
+   c.dy	=	(-1)*(m.a*m.v-m.u*m.c);
+	c.u		=	m.c*m.dy-m.d*m.dx;
+   c.v		=	(-1)*(m.a*m.dy-m.b*m.dx);
+  	c.w		=	m.a*m.d-m.b*m.c;
+	return Utils.getTranspose2D(c);
+}
+
+Utils.getInverse2D = function(m){
+	var d = Utils.getDeterminant2D(m);
+	var i = {};
+	if(typeof(d) == "number" && d != 0){
+		var f = 1/d;
+		var a = Utils.getAdjoint2D(m);
+		for(var x in a){
+			i[x] = a[x] * f;
+		}
+	}
+	return i;
+}
+
+
 
  var Event  = function(){
  	 	
  }
 
  var MouseEvent = function(){
- 	
+ 	Event.call(this);
  }
+ 
+ 
  MouseEvent.prototype = new Event;
  MouseEvent.MOUSE_CLICK = "mouseClick";
  MouseEvent.MOUSE_MOVE = "mouseMove";
@@ -136,6 +169,12 @@ Utils.multiply2DMatrices = function (m1, m2){
  	 		augMatrix2D:{a:1, b:0, u:0, c:0, d:1, v:0, dx:0, dy:0, w:1},
  	 		matrix2D:{a:1, b:0, u:0, c:0, d:1, v:0, dx:0, dy:0, w:1}
  	 	};
+ 	 	
+ 	 var _innerBounds = {x:0, y:0, w:0, h:0};
+ 	 
+ 	 var _outerBounds = {x:0, y:0, w:0, h:0};
+ 	 
+ 	 var _points = {};
  	 
  	 /* parent container */ 
  	 var _parentSprite;
@@ -311,7 +350,22 @@ Utils.multiply2DMatrices = function (m1, m2){
     }
     
     
-   
+    /* Function innerBounds
+ 	 * Getter of _innerBounds
+ 	 * 
+ 	 */
+    this.innerBounds  = function (){
+    	return _innerBounds;
+    }
+    
+    
+    /* Function innerBounds
+ 	 * Getter of _innerBounds
+ 	 * 
+ 	 */
+    this.outerBounds  = function (){
+    	return _outerBounds;
+    }
     
     
     
@@ -379,6 +433,122 @@ Utils.multiply2DMatrices = function (m1, m2){
    
    }
   
+  	this.updateBounds = function(){    
+  	
+  			var innerBounds = {x1:undefined, x2:undefined, y1:undefined, y2:undefined};
+  	
+  			for(var key in _points){
+  				
+  				var innerPoints = _points[key];
+  				
+  				if(typeof(innerPoints) != "undefined" && innerPoints.length){
+  					
+  					this.checkBounds(innerPoints, innerBounds);
+  					
+  				
+  				}
+  				
+  			}
+      	
+      		if(	typeof(innerBounds.x1) == "number"){
+      			 	_innerBounds.x = innerBounds.x1;
+      		}
+      		
+			if(	typeof(innerBounds.y1) == "number"){
+      			 	_innerBounds.y = innerBounds.y1;
+     		}
+     		
+     		if(	typeof(innerBounds.x1) == "number" && 	typeof(innerBounds.x2) == "number"){
+	      			_innerBounds.w = innerBounds.x2 - innerBounds.x1;
+      		}
+      		
+      		if(	typeof(innerBounds.y1) == "number" && 	typeof(innerBounds.y2) == "number"){
+      			 	_innerBounds.h = innerBounds.y2 - innerBounds.y1;
+      		}
+   		
+     	
+     		if(_parentSprite){
+     			
+     			var pltGlobal = this.localToGlobal(_innerBounds.x, _innerBounds.y);
+     			var plbGlobal = this.localToGlobal(_innerBounds.x, _innerBounds.y + _innerBounds.h);
+     			var prtGlobal = this.localToGlobal(_innerBounds.x + _innerBounds.w, _innerBounds.y);
+     			var prbGlobal = this.localToGlobal(_innerBounds.x + _innerBounds.w, _innerBounds.y + _innerBounds.h);
+     			
+     			var pltParent = _parentSprite.globalToLocal(pltGlobal);
+     			var plbParent = _parentSprite.globalToLocal(plbGlobal);
+     			var prtParent = _parentSprite.globalToLocal(prtGlobal);
+     			var prbParent = _parentSprite.globalToLocal(prbGlobal);
+     			
+     			var outerPoints = [pltParent, plbParent, prtParent, prbParent];
+     			var outerBounds = {x1:undefined, x2:undefined, y1:undefined, y2:undefined};
+     			
+     			this.checkBounds(outerPoints, outerBounds);
+     			
+     			console.log(" outer >>> ", outerBounds.x1, outerBounds.x2, outerBounds.y1, outerBounds.y2);
+	  				
+  				if(	typeof(outerBounds.x1) == "number"){
+	      			 	_outerBounds.x = outerBounds.x1;
+	      		}
+	      		
+				if(	typeof(outerBounds.y1) == "number"){
+	      			 	_outerBounds.y = outerBounds.y1;
+	     		}
+	      		
+	      		if(	typeof(outerBounds.x1) == "number" && 	typeof(outerBounds.x2) == "number"){
+	      			 	_outerBounds.w = outerBounds.x2 - outerBounds.x1;
+	      		}
+	      		
+	      		if(	typeof(outerBounds.y1) == "number" && 	typeof(outerBounds.y2) == "number"){
+	      			 	_outerBounds.h = outerBounds.y2 - outerBounds.y1;
+	      		}
+     			
+			}
+     		
+     		
+   
+   }
+   
+   
+   this.checkBounds = function(points, bounds){
+   	
+   	  
+   		for(var i = 0; i < points.length; i++){
+  						
+  					  var p = points[i];
+  					  
+  					  if(bounds.x1 == undefined){
+  					  		bounds.x1 = p.x;
+  					  }
+  					  
+  					  if(bounds.x2 == undefined){
+  					  		bounds.x2 = p.x;
+  					  }
+  					  
+  					  bounds.x1 = Math.min(p.x, bounds.x1);
+  					  bounds.x2 = Math.max(p.x, bounds.x2);
+  					  
+  					  if(bounds.y1 == undefined){
+  					  		bounds.y1 = p.y;
+  					  }
+  					  
+  					  if(bounds.y2 == undefined){
+  					  		bounds.y2 = p.y;
+  					  }
+  					  
+  					  bounds.y1 = Math.min(p.y, bounds.y1);
+  					  bounds.y2 = Math.max(p.y, bounds.y2);
+  					  
+  		}				
+   	
+   		
+   	
+   }
+   
+   this.determineBounds = function(key, points){    
+      	
+      	_points[key] = points;
+    
+    }
   
   	this.applyTransform  = function(graphics2D){
   		
@@ -435,7 +605,8 @@ Utils.multiply2DMatrices = function (m1, m2){
 		_fps	 = fps;
 		
 		this.modifyTransform();
-	 	this.applyTransform(graphics2D);
+		this.applyTransform(graphics2D);
+		this.updateBounds();
 	 	this.draw(graphics2D);
 	 	
 	 	for( var i = 0; i < this.numChildren(); i++){
@@ -482,10 +653,85 @@ Utils.multiply2DMatrices = function (m1, m2){
 	 		 	
 	 }
 	 
+	 /** 
+	 * Function hitTest 
+	 *
+	 *
+	 */
+
+	 this.hitTest = function(x,y){
+	 	
+	 	
+	 	
+	 }
+	 
+	 /** 
+	 * Function hitTest 
+	 *
+	 *
+	 */
+
+	 this.hitTestObject = function(object){
+	 	
+	 	
+	 	
+	 }
+	 
+
+	 this.localToGlobal = function(x, y){
+	 	
+	 	
+	 	if(typeof(x) == "object"){
+	 		
+	 		y = x.y;
+	 		x = x.x;
+	 		
+	 	}
+	 	
+	 	if(typeof(x) == "number" && typeof(y) == "number"){
+	 		
+	 		var augmatrix2D  = this.transform().augMatrix2D;
+	 		
+	 		
+	 		var point = {a:1, b:0, u:0, c:0, d:1, v:0, dx:x, dy:y, w:1};
+	 		
+	 		var result = Utils.multiply2DMatrices(augmatrix2D, point);
+	 		
+	 		return {x:result.dx, y:result.dy};
+	 		
+	 		//console.log("matrix >>> ", result.dx, result.dy);
+	 		
+	 	}
+	 	
+	 }
+	 
 	 
 
 	 
-	 
+	 this.globalToLocal = function(x, y){
+	 	
+	 	if(typeof(x) == "object"){
+	 		
+	 		y = x.y;
+	 		x = x.x;
+	 		
+	 	}
+	 	
+	 	if(typeof(x) == "number" && typeof(y) == "number"){
+	 		
+	 		var augmatrix2D  = this.transform().augMatrix2D;
+	 		
+	 		var point = {a:1, b:0, u:0, c:0, d:1, v:0, dx:x, dy:y, w:1};
+	 		
+	 		var result = Utils.multiply2DMatrices(point, Utils.getInverse2D(augmatrix2D));
+	 		
+	 		return {x:result.dx, y:result.dy};
+	 		
+	 		//console.log("matrix >>> ", result.dx, result.dy);
+	 		
+	 	}
+	 	
+	 }
  
 }
 
@@ -534,7 +780,45 @@ Ex.init = function(container, width, height, fps){
 			Ex.baseSprite = new ExSprite();
 			Ex.baseSprite.name("BaseSprite");
 			
+			
+			var _fns = {
+		
+				onMouseClick: function(event){
+			
+						
+			
+				},
+				
+				onMouseOver: function(event){
+			
+						
+			
+				},
+				
+				onMouseOut: function(event){
+					
+					
+				},
+				
+				onMouseMove: function(event){
+					
+					
+				}
+		
+		
+			}
+			
+			
+			Ex.canvas.onclick 			= _fns.onMouseClick;
+			Ex.canvas.onmouseover 	= _fns.onMouseOver;
+			Ex.canvas.onmouseout 		= _fns.onMouseOut;
+			Ex.canvas.onmousemove 	= _fns.onMouseMove;
+			
+			
 			Ex.container.appendChild(Ex.canvas);
+			
+			
+			
 			
 			
 			
@@ -543,6 +827,9 @@ Ex.init = function(container, width, height, fps){
 		}
 		
 	}
+	
+	
+	
 	
 	return false;
 
