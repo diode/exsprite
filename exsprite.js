@@ -174,6 +174,8 @@ Utils.getInverse2D = function(m){
  	 
  	 var _outerBounds = {x:0, y:0, w:0, h:0};
  	 
+ 	 var _hitArea  =  {x:0, y:0, w:0, h:0}
+ 	 
  	 var _points = {};
  	 
  	 /* parent container */ 
@@ -368,6 +370,24 @@ Utils.getInverse2D = function(m){
     }
     
     
+    /**
+ 	 * Function hitArea
+ 	 * Setter and Getter of _height
+ 	 * 
+ 	 */
+    this.hitArea  = function (value){
+    	if(typeof(value) != 'undefined' 
+    	&& typeof(value.x) != 'undefined'
+    	&& typeof(value.y) != 'undefined'
+    	&& typeof(value.w) != 'undefined'
+    	&& typeof(value.h) != 'undefined'){
+    		_hitArea = value;
+    	}else{
+    		return _hitArea;
+    	}
+    }
+    
+    
     
     /**
  	 * Function childIndex
@@ -432,6 +452,12 @@ Utils.getInverse2D = function(m){
    this.modifyTransform = function(){    
    
    }
+   
+   this.determineBounds = function(key, points){    
+      	
+      	_points[key] = points;
+    
+    }
   
   	this.updateBounds = function(){    
   	
@@ -484,7 +510,7 @@ Utils.getInverse2D = function(m){
      			
      			this.checkBounds(outerPoints, outerBounds);
      			
-     			console.log(" outer >>> ", outerBounds.x1, outerBounds.x2, outerBounds.y1, outerBounds.y2);
+     			//console.log(" outer >>> ", outerBounds.x1, outerBounds.x2, outerBounds.y1, outerBounds.y2);
 	  				
   				if(	typeof(outerBounds.x1) == "number"){
 	      			 	_outerBounds.x = outerBounds.x1;
@@ -544,11 +570,7 @@ Utils.getInverse2D = function(m){
    	
    }
    
-   this.determineBounds = function(key, points){    
-      	
-      	_points[key] = points;
-    
-    }
+   
   
   	this.applyTransform  = function(graphics2D){
   		
