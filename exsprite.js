@@ -1,9 +1,9 @@
 /**
- * exSprite JavaScript Library v1.0.0
+ * exSprite JavaScript Library v1.0.1
  * http://www.exsprite.com
  * Copyright 2011, Vipin V
  * Licensed under the MIT or GPL Version 2 licenses.
- * Date: July 29 2011
+ * Date: November 1 2011
  *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
