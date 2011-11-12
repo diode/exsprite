@@ -1,9 +1,9 @@
 /**
- * exSprite JavaScript Library v1.0.1
+ * exSprite JavaScript Library v1.0.2
  * http://www.exsprite.com
  * Copyright 2011, Vipin V
  * Licensed under the MIT or GPL Version 2 licenses.
- * Date: November 1 2011
+ * Date: November 12 2011
  *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -59,6 +59,14 @@ ex = (function () {
 	 	2D Graphics context of the canavs
 	 */
             var _graphics2D = null;
+            
+/* 
+	 	Variable: _graphics2DProxy (private)
+	 	2D Graphics context of the canavs
+	 */
+            var _graphics2Dproxy = null;
+            
+            
 
 /* 
 	 	Variable: _baseSprite (private)
@@ -130,6 +138,201 @@ ex = (function () {
 
                         _baseSprite = ex.createSprite();
                         _baseSprite.name("BaseSprite");
+                        
+                        _graphics2Dproxy = {
+                        	target: null,                        
+                        	lineWidth: function (v) {
+							    _graphics2D.lineWidth = v;
+							},
+							textBaseline: function (v) {
+							    _graphics2D.textBaseline = v;
+							},
+							strokeStyle: function (v) {
+							    _graphics2D.strokeStyle = v;
+							},
+							lineJoin: function (v) {
+							    _graphics2D.lineJoin = v;
+							},
+							shadowBlur: function (v) {
+							    _graphics2D.shadowBlur = v;
+							},
+							globalAlpha: function (v) {
+							    _graphics2D.globalAlpha = v;
+							},
+							textAlign: function (v) {
+							    _graphics2D.textAlign = v;
+							},
+							globalCompositeOperation: function (v) {
+							    _graphics2D.globalCompositeOperation = v;
+							},
+							font: function (v) {
+							    _graphics2D.font = v;
+							},
+							shadowColor: function (v) {
+							    _graphics2D.shadowColor = v;
+							},
+							miterLimit: function (v) {
+							    _graphics2D.miterLimit = v;
+							},
+							shadowOffsetY: function (v) {
+							    _graphics2D.shadowOffsetY = v;
+							},
+							fillStyle: function (v) {
+							    _graphics2D.fillStyle = v;
+							},
+							shadowOffsetX: function (v) {
+							    _graphics2D.shadowOffsetX = v;
+							},
+							lineCap: function (v) {
+							    _graphics2D.lineCap = v;
+							},
+							save: function () {
+							    _graphics2D.save.apply(_graphics2D, arguments);
+							},
+							restore: function () {
+							    _graphics2D.restore.apply(_graphics2D, arguments);
+							},
+							scale: function () {
+							    _graphics2D.scale.apply(_graphics2D, arguments);
+							},
+							rotate: function () {
+							    _graphics2D.rotate.apply(_graphics2D, arguments);
+							},
+							translate: function () {
+							    _graphics2D.translate.apply(_graphics2D, arguments);
+							},
+							transform: function () {
+							    _graphics2D.transform.apply(_graphics2D, arguments);
+							},
+							setTransform: function () {
+							    _graphics2D.setTransform.apply(_graphics2D, arguments);
+							},
+							createLinearGradient: function () {
+							    _graphics2D.createLinearGradient.apply(_graphics2D, arguments);
+							},
+							createRadialGradient: function () {
+							    _graphics2D.createRadialGradient.apply(_graphics2D, arguments);
+							},
+							clearRect: function () {
+							    _graphics2D.clearRect.apply(_graphics2D, arguments);
+							},
+							fillRect: function (x, y, w, h) {
+							    _graphics2D.fillRect(x, y, w, h);
+							    (this.target)?this.target.determineBounds("fillRect", [{x:x, y:y}, {x:x+w, y:y+h}, {x:x, y:y+h}, {x:x+w, y:y}]):"";
+							},
+							beginPath: function () {
+							    _graphics2D.beginPath.apply(_graphics2D, arguments);
+							},
+							closePath: function () {
+							    _graphics2D.closePath.apply(_graphics2D, arguments);
+							},
+							moveTo: function (x, y) {
+							    _graphics2D.moveTo(x, y);
+							    (this.target)?this.target.determineBounds("moveTo", [{x:x, y:y}]):"";
+							},
+							lineTo: function (x, y) {
+							    _graphics2D.lineTo(x, y);
+							    (this.target)?this.target.determineBounds("lineTo", [{x:x, y:y}]):"";
+							},
+							quadraticCurveTo: function () {
+							    _graphics2D.quadraticCurveTo.apply(_graphics2D, arguments);
+							},
+							bezierCurveTo: function () {
+							    _graphics2D.bezierCurveTo.apply(_graphics2D, arguments);
+							},
+							arcTo: function () {
+							    _graphics2D.arcTo.apply(_graphics2D, arguments);
+							},
+							rect: function () {
+							    _graphics2D.rect.apply(_graphics2D, arguments);
+							},
+							arc: function (x, y, radius, startAngle, endAngle, anticlockwise) {
+							    
+							    _graphics2D.arc(x, y, radius, startAngle, endAngle, anticlockwise);
+							    
+							    (this.target)?this.target.determineBounds("arc", [
+																		{x:x-radius, y:y-radius},
+																		{x:x+radius, y:y-radius},
+																		{x:x+radius, y:y+radius},
+																		{x:x-radius, y:y+radius}
+																	]):"";
+								
+							},
+							fill: function () {
+							    _graphics2D.fill.apply(_graphics2D, arguments);
+							},
+							stroke: function () {
+							    _graphics2D.stroke.apply(_graphics2D, arguments);
+							},
+							clip: function () {
+							    _graphics2D.clip.apply(_graphics2D, arguments);
+							},
+							isPointInPath: function () {
+							    _graphics2D.isPointInPath.apply(_graphics2D, arguments);
+							},
+							measureText: function () {
+							    _graphics2D.measureText.apply(_graphics2D, arguments);
+							},
+							setAlpha: function () {
+							    _graphics2D.setAlpha.apply(_graphics2D, arguments);
+							},
+							setCompositeOperation: function () {
+							    _graphics2D.setCompositeOperation.apply(_graphics2D, arguments);
+							},
+							setLineWidth: function () {
+							    _graphics2D.setLineWidth.apply(_graphics2D, arguments);
+							},
+							setLineCap: function () {
+							    _graphics2D.setLineCap.apply(_graphics2D, arguments);
+							},
+							setLineJoin: function () {
+							    _graphics2D.setLineJoin.apply(_graphics2D, arguments);
+							},
+							setMiterLimit: function () {
+							    _graphics2D.setMiterLimit.apply(_graphics2D, arguments);
+							},
+							clearShadow: function () {
+							    _graphics2D.clearShadow.apply(_graphics2D, arguments);
+							},
+							fillText: function () {
+							    _graphics2D.fillText.apply(_graphics2D, arguments);
+							},
+							strokeText: function () {
+							    _graphics2D.strokeText.apply(_graphics2D, arguments);
+							},
+							setStrokeColor: function () {
+							    _graphics2D.setStrokeColor.apply(_graphics2D, arguments);
+							},
+							setFillColor: function () {
+							    _graphics2D.setFillColor.apply(_graphics2D, arguments);
+							},
+							strokeRect: function (x, y, w, h) {
+								 _graphics2D.strokeRect(x, y, w, h);
+							    (this.target)?this.target.determineBounds("strokeRect", [{x:x, y:y}, {x:x+w, y:y+h}, {x:x, y:y+h}, {x:x+w, y:y}]):"";
+							},
+							drawImage: function () {
+							    _graphics2D.drawImage.apply(_graphics2D, arguments);
+							},
+							setShadow: function () {
+							    _graphics2D.setShadow.apply(_graphics2D, arguments);
+							},
+							createPattern: function () {
+							    _graphics2D.createPattern.apply(_graphics2D, arguments);
+							},
+							putImageData: function () {
+							    _graphics2D.putImageData.apply(_graphics2D, arguments);
+							},
+							createImageData: function () {
+							    _graphics2D.createImageData.apply(_graphics2D, arguments);
+							},
+							getImageData: function () {
+							    _graphics2D.getImageData.apply(_graphics2D, arguments);
+							},
+							drawImageFromRect: function () {
+							    _graphics2D.drawImageFromRect.apply(_graphics2D, arguments);
+							}
+					                        
+                        }
 
 
                         var _fns = {
@@ -182,18 +385,37 @@ ex = (function () {
                                 var mouseUpEvent = ex.mouseEvent(ex.MOUSE_UP, mouseUpPoint);
                                 _baseSprite.dispatchEvent(mouseUpEvent);
 
+                            },
+                            
+                            onKeyDown: function(event){
+                            	var keyDownEvent = ex.keyEvent(ex.KEY_DOWN, event.keyCode);
+                                _baseSprite.dispatchEvent(keyDownEvent);                          
+                            },
+                            
+                            onKeyPress: function(event){
+                            	var keyPressEvent = ex.keyEvent(ex.KEY_PRESS, event.keyCode);
+                                _baseSprite.dispatchEvent(keyPressEvent);  
+                            },
+                            
+                            onKeyUp: function(event){
+                            	var keyUpEvent = ex.keyEvent(ex.KEY_UP, event.keyCode);
+                                _baseSprite.dispatchEvent(keyUpEvent);                        
                             }
 
 
                         }
 
 
-                        _canvas.onclick = _fns.onMouseClick;
+                        _canvas.onclick 	= _fns.onMouseClick;
                         _canvas.onmouseover = _fns.onMouseOver;
-                        _canvas.onmouseout = _fns.onMouseOut;
+                        _canvas.onmouseout 	= _fns.onMouseOut;
                         _canvas.onmousemove = _fns.onMouseMove;
                         _canvas.onmousedown = _fns.onMouseDown;
-                        _canvas.onmouseup = _fns.onMouseUp;
+                        _canvas.onmouseup 	= _fns.onMouseUp;
+                        
+                        window.onkeydown 	= _fns.onKeyDown;
+                        window.onkeypress 	= _fns.onKeyPress;
+                        window.onkeyup 		= _fns.onKeyUp;
 
 
                         _container.appendChild(_canvas);
@@ -231,7 +453,7 @@ ex = (function () {
              * Start rendering if animation is involved
              *
              **/
-            this.startRendering = function () {
+            this.startRendering = function (fps) {
 
                 if (ex) {
 
@@ -240,7 +462,7 @@ ex = (function () {
                     var xthis = this;
                     _rendering = setInterval(function () {
                         xthis.render();
-                    }, 1000 / 15);
+                    }, 1000/((fps)?fps:15));
 
 
                 }
@@ -261,15 +483,17 @@ ex = (function () {
                 var diff = now - _start;
                 _fps = ((_frame / diff) * 1000).toFixed(2);
 
-                _graphics2D.setTransform(1, 0, 0, 1, 0, 0);
-                _graphics2D.clearRect(0, 0, _canvas.width, _canvas.height);
+                _graphics2Dproxy.setTransform(1, 0, 0, 1, 0, 0);
+                _graphics2Dproxy.clearRect(0, 0, _canvas.width, _canvas.height);
 
 
-                _baseSprite.updateTransform(_graphics2D);
+                _baseSprite.updateTransform(_graphics2Dproxy);
                 _baseSprite.updateBounds();
-                _baseSprite.updateDisplay(_graphics2D, _frame, _fps);
+                _baseSprite.updateDisplay(_graphics2Dproxy, _frame, _fps);
 
-
+				
+				//ex.log(_fps);
+				
             }
 
 
@@ -1017,8 +1241,14 @@ ex = (function () {
              * 
              */
             this.determineBounds = function (key, points) {
-
-                _points[key] = points;
+            
+            	if(!_points[key]){
+            		_points[key] = [];
+            	}
+				for(var i = 0; i < points.length; i++){
+        			 _points[key].push(points[i]);
+        		}
+                
 
             }
 
@@ -1062,15 +1292,14 @@ ex = (function () {
                 for (var key in _points) {
 
                     var innerPoints = _points[key];
-
+                    
                     if (typeof (innerPoints) != "undefined" && innerPoints.length) {
-
-                        ex.geometry.pointsToRect(innerPoints, innerBounds);
-
-
+                    	ex.geometry.pointsToRect(innerPoints, innerBounds);
                     }
 
                 }
+                
+                
 
                 if (typeof (innerBounds.x) == "number") {
                     _innerBounds.x = innerBounds.x;
@@ -1150,7 +1379,8 @@ ex = (function () {
 
                 }
 
-
+				
+				_points = {};
 
             }
 
@@ -1163,16 +1393,18 @@ ex = (function () {
              * 
              */
             this.updateDisplay = function (graphics2D, frame, fps) {
-
-                _frame = frame;
+            
+            	_frame = frame;
                 _fps = fps;
-
+				
+				
 
                 this.drawGlobalBounds(graphics2D);
 
 
                 if (_parentSprite) {
                     this.applyParentTransform(graphics2D);
+                    graphics2D.target = this.parentSprite();
                     this.drawInParent(graphics2D);
                     this.drawOuterBounds(graphics2D);
                 }
@@ -1180,6 +1412,7 @@ ex = (function () {
 
 
                 this.applyLocalTransform(graphics2D);
+                graphics2D.target = this;
                 this.draw(graphics2D);
                 this.drawInnerBounds(graphics2D);
 
@@ -1234,7 +1467,7 @@ ex = (function () {
                 if (typeof (_showInnerBounds) === "string") {
 
                     var bounds = this.innerBounds();
-                    graphics2D.strokeStyle = _showInnerBounds; //"rgba(255, 255, 0, 0.7)";
+                    graphics2D.strokeStyle(_showInnerBounds); //"rgba(255, 255, 0, 0.7)";
                     graphics2D.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
                 }
@@ -1252,7 +1485,7 @@ ex = (function () {
                 if (typeof (_showOuterBounds) === "string") {
 
                     var bounds = this.outerBounds();
-                    graphics2D.strokeStyle = _showOuterBounds; //"rgba(255, 255, 0, 0.7)";
+                    graphics2D.strokeStyle(_showOuterBounds); //"rgba(255, 255, 0, 0.7)";
                     graphics2D.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
                 }
@@ -1273,7 +1506,7 @@ ex = (function () {
                     graphics2D.setTransform(1, 0, 0, 1, 0, 0);
 
                     var bounds = this.globalBounds();
-                    graphics2D.strokeStyle = _showGlobalBounds; //"rgba(255, 255, 0, 0.7)";
+                    graphics2D.strokeStyle(_showGlobalBounds); //"rgba(255, 255, 0, 0.7)";
                     graphics2D.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
                 }
@@ -1781,6 +2014,26 @@ ex = (function () {
 
                 }
             }
+            
+            
+            this.keychange = function (event) {
+
+                if (typeof (event.keyCode()) == "number") {
+
+                    for (var i = 0; i < _xthis.numChildren(); i++) {
+                        
+                        var child = _children[i];
+						child.dispatchEvent(event);
+                        
+
+                    }
+
+                }
+
+            }
+            
+            
+            
 
 
             this.bindDefault(ex.MOUSE_CLICK, this.mouseclick);
@@ -1788,6 +2041,9 @@ ex = (function () {
             this.bindDefault(ex.MOUSE_OUT, this.mousemove);
             this.bindDefault(ex.MOUSE_DOWN, this.mousedown);
             this.bindDefault(ex.MOUSE_UP, this.mouseup);
+            this.bindDefault(ex.KEY_DOWN, this.keychange);
+            this.bindDefault(ex.KEY_PRESS, this.keychange);
+            this.bindDefault(ex.KEY_UP, this.keychange);
 
             _xthis = this;
 
@@ -1872,6 +2128,24 @@ ex = (function () {
 		Event type Mouse Up
 	*/
         MOUSE_UP: "mouseUp",
+        
+/*
+		Constant: KEY_DOWN 
+		Event type Key Down
+	*/
+        KEY_DOWN: "keyDown",
+
+/*
+		Constant: KEY_PRESS
+		Event type Key Press
+	*/
+        KEY_PRESS: "keyPress",
+
+/*
+		Constant: KEY_UP 
+		Event type Key Up
+	*/
+        KEY_UP: "keyUp",        
 
 
 /*
@@ -2319,14 +2593,9 @@ ex = (function () {
         extend: function (b, c, Def) {
             if (_defs[b]) {
                 Def.prototype = new _defs[b]();
+                Def.prototype.inherit = _defs[b];
                 _defs[c] = Def;
 
-            }
-        },
-
-        inherit: function (c, ref) {
-            if (_defs[c]) {
-                ref.sup = _defs[c];
             }
         },
 
@@ -2365,6 +2634,15 @@ ex = (function () {
             }
 
         },
+        
+        keyEvent: function (type, keyCode) {
+
+            if (_defs["KeyEvent"]) {
+                var keyEvent = new _defs["KeyEvent"](type, keyCode);
+                return keyEvent;
+            }
+
+        },
 
         hitEvent: function (type, mx, my) {
 
@@ -2383,19 +2661,31 @@ ex = (function () {
 
     _ex.extend("Event", "MouseEvent", function (type, mousepoint) {
 
-        ex.inherit("Event", this);
-        this.sup.call(this, type);
-
+        this.inherit(type);
+        
         var _mouseX = mousepoint.x;
         var _mouseY = mousepoint.y;
 
-        this.mouseX = function (item) {
+        this.mouseX = function () {
             return _mouseX;
         }
 
 
-        this.mouseY = function (item) {
+        this.mouseY = function () {
             return _mouseY;
+        }
+
+
+    });
+    
+    _ex.extend("Event", "KeyEvent", function (type, keyCode) {
+
+        this.inherit(type);
+        
+        var _keyCode = keyCode;
+        
+        this.keyCode = function () {
+            return _keyCode;
         }
 
 
@@ -2403,8 +2693,7 @@ ex = (function () {
 
     _ex.extend("Event", "HitEvent", function (type, object, mouseX, mouseY) {
 
-        ex.inherit("Event", this);
-        this.sup.call(this, type);
+        this.inherit(type);
 
         var _object = object;
         var _mouseX = mouseX;
@@ -2416,12 +2705,12 @@ ex = (function () {
         }
 
 
-        this.mouseX = function (item) {
+        this.mouseX = function () {
             return _mouseX;
         }
 
 
-        this.mouseX = function (item) {
+        this.mouseX = function () {
             return _mouseY;
         }
 
