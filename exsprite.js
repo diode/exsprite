@@ -3,7 +3,7 @@
  * http://www.exsprite.com
  * Copyright 2011, Vipin V
  * Licensed under the MIT or GPL Version 2 licenses.
- * Date: November 12 2011
+ * Date: November 15 2011
  *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,6 +24,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+ 
+ 
 /**
  * Class: Ex
  * Global singleton class
@@ -109,8 +111,11 @@ ex = (function () {
 	 	Number of frames per second
 	 */
             var _dragHandler;
-
-
+            
+            
+            this.stage = [];
+            
+            
             /************************************************** METHODS **********************************************/
 
 
@@ -133,11 +138,12 @@ ex = (function () {
 
                         _graphics2D = _canvas.getContext("2d");
 
-                        _canvas.width = width;
-                        _canvas.height = height;
+                        this.stage.width = _canvas.width = width;
+                        this.stage.height = _canvas.height = height;
 
                         _baseSprite = ex.createSprite();
                         _baseSprite.name("BaseSprite");
+                        _baseSprite.stage(this.stage);
                         
                         _graphics2Dproxy = {
                         	target: null,                        
@@ -490,7 +496,8 @@ ex = (function () {
                 _baseSprite.updateTransform(_graphics2Dproxy);
                 _baseSprite.updateBounds();
                 _baseSprite.updateDisplay(_graphics2Dproxy, _frame, _fps);
-
+				
+                
 				
 				//ex.log(_fps);
 				
@@ -691,6 +698,21 @@ ex = (function () {
                 h: 0
             };
 
+/* 
+	 	Variable: _clip (private)
+	 	Flag that decides whether content has to be clipped     
+	 */
+            var _clip = false;
+            
+          
+          
+/* 
+	 	Variable: _masking (private)
+	 	
+	 */
+            var _masking = false;
+
+
 
 /* 
 	 	Variable: _hitArea (private)
@@ -702,7 +724,13 @@ ex = (function () {
                 w: 0,
                 h: 0
             }
-
+/* 
+	 	Variable: _stage (private)
+	 	Stage object
+	 */
+            var _stage;
+            
+            
 /* 
 	 	Variable: _parentSprite (private)
 	 	Parent object to which this object is added.
@@ -993,6 +1021,19 @@ ex = (function () {
             this.globalBounds = function () {
                 return _globalBounds;
             }
+            
+            
+            /* Function: clip
+             * Getter and Setter of _clip
+             * 
+             */
+            this.clip = function (value) {
+                if (typeof (value) != 'undefined') {
+                    _clip = value;
+                } else {
+                    return _clip;
+                }
+            }
 
 
             /**
@@ -1008,7 +1049,18 @@ ex = (function () {
                 }
             }
 
-
+			/**
+             * Function: stage
+             * Getter and Setter of _stage
+             * 
+             */
+            this.stage = function (value) {
+                if (typeof (value) != 'undefined') {
+                    _stage = value;
+                } else {
+                    return _stage;
+                }
+            }
 
             /**
              * Function: parentSprite
@@ -1069,13 +1121,24 @@ ex = (function () {
 
 
             /**
-             * Function: pushChild
+             * Function: addChild
              * Push item to the array of child elements
              * 
              */
             this.addChild = function (exSprite) {
                 _children.push(exSprite);
                 exSprite.parentSprite(this);
+                exSprite.stage(this.stage());
+            }
+            
+            /**
+             * Function: removeChild
+             * Push item to the array of child elements
+             * 
+             */
+            this.removeChild = function (exSprite) {
+                exSprite.parentSprite(null);
+                exSprite.stage(null);
             }
 
             /**
@@ -1242,6 +1305,10 @@ ex = (function () {
              */
             this.determineBounds = function (key, points) {
             
+            	if(_clip && !_masking){
+            		return;
+            	}
+            
             	if(!_points[key]){
             		_points[key] = [];
             	}
@@ -1317,8 +1384,7 @@ ex = (function () {
                     _innerBounds.h = innerBounds.h;
                 }
 
-
-                if (_parentSprite) {
+				if (_parentSprite) {
 
                     var pltGlobal = this.localToGlobal(_innerBounds.x, _innerBounds.y);
                     var plbGlobal = this.localToGlobal(_innerBounds.x, _innerBounds.y + _innerBounds.h);
@@ -1398,21 +1464,56 @@ ex = (function () {
                 _fps = fps;
 				
 				
-
-                this.drawGlobalBounds(graphics2D);
-
-
+				graphics2D.lineWidth(1);
+				graphics2D.textBaseline("alphabetic");
+				graphics2D.strokeStyle("black");
+				graphics2D.lineJoin("miter");
+				graphics2D.shadowBlur(0);
+				graphics2D.globalAlpha(1);
+				graphics2D.textAlign("start");
+				if(!this.parentSprite()){
+					graphics2D.globalCompositeOperation("source-over");
+				}else if(!_clip && !this.parentSprite().clip()){
+					graphics2D.globalCompositeOperation("source-over");
+				}
+				graphics2D.font("10px sans-serif");
+				graphics2D.shadowColor("transparent black");
+				graphics2D.miterLimit(10);
+				graphics2D.shadowOffsetY(0);
+				graphics2D.shadowOffsetX(0);
+				graphics2D.fillStyle("black");
+				graphics2D.lineCap("butt");
+				
+				this.drawGlobalBounds(graphics2D);
+                
+                
+                
+                
                 if (_parentSprite) {
                     this.applyParentTransform(graphics2D);
                     graphics2D.target = this.parentSprite();
+                    if(_clip){
+                    	_masking = true;
+                		_parentSprite.setMask(graphics2D);
+						graphics2D.globalCompositeOperation("source-atop");
+						_masking = false;
+					}
                     this.drawInParent(graphics2D);
                     this.drawOuterBounds(graphics2D);
                 }
 
-
+				
+				
 
                 this.applyLocalTransform(graphics2D);
                 graphics2D.target = this;
+                if(_clip){
+                	graphics2D.globalCompositeOperation("source-over");
+                	_masking = true;
+                	this.setMask(graphics2D);
+					graphics2D.globalCompositeOperation("source-atop");
+					_masking = false;
+				}
                 this.draw(graphics2D);
                 this.drawInnerBounds(graphics2D);
 
@@ -1430,6 +1531,10 @@ ex = (function () {
                 for (var i = 0; i < this.numChildren(); i++) {
 
                     var child = _children[i];
+                    
+                    if(child.parentSprite() != this){
+                    	_children.splice(i, 1);
+                    }
 
                     if (child && child.updateDisplay) {
 
@@ -1455,6 +1560,11 @@ ex = (function () {
                 }
 
             }
+            
+            
+            this.setMask = function (graphics2D) {
+            	    			
+    		}
 
             /**
              * Function: drawInnerBounds
@@ -1463,15 +1573,15 @@ ex = (function () {
              * 
              */
             this.drawInnerBounds = function (graphics2D) {
-
-                if (typeof (_showInnerBounds) === "string") {
-
-                    var bounds = this.innerBounds();
+				
+				if (typeof (_showInnerBounds) === "string") {
+                	var bounds = this.innerBounds();
+					graphics2D.globalCompositeOperation("source-over");
                     graphics2D.strokeStyle(_showInnerBounds); //"rgba(255, 255, 0, 0.7)";
                     graphics2D.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
                 }
-
+                
             }
 
             /**
@@ -1485,6 +1595,7 @@ ex = (function () {
                 if (typeof (_showOuterBounds) === "string") {
 
                     var bounds = this.outerBounds();
+                    graphics2D.globalCompositeOperation("source-over");
                     graphics2D.strokeStyle(_showOuterBounds); //"rgba(255, 255, 0, 0.7)";
                     graphics2D.strokeRect(bounds.x, bounds.y, bounds.w, bounds.h);
 
@@ -2159,6 +2270,8 @@ ex = (function () {
                 console.log(arguments);
             }
         },
+        
+        stage:{},
 
         matrix: {
 
